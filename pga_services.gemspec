@@ -8,8 +8,8 @@ Gem::Specification.new do |spec|
   spec.version       = PGA::VERSION
   spec.authors       = ["Ilton Garcia dos Santos Silveira"]
   spec.email         = ["ilton_unb@hotmail.com"]
-  spec.summary       = %q{TODO: Write a short summary. Required.}
-  spec.description   = %q{TODO: Write a longer description. Optional.}
+  spec.summary       = 'SOAP PGA Client'
+  spec.description   = 'A lot of methods to use a simple call to integrate with the PGA'
   spec.homepage      = ""
   spec.license       = "MIT"
 
