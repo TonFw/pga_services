@@ -4,11 +4,11 @@ module PGA
 
   class Services
     @farmer_cpf
-    @instance
+    @@instance
     attr_accessor :current_gta
 
-    def get_instance
-      @instance.nil? ? @instance = PGA::Services.new : @instance
+    def self.get_instance
+      @@instance.nil? ? @@instance = PGA::Services.new : @@instance
     end
 
     # Para listar as funcionalidades: @client.operations

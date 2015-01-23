@@ -2,7 +2,7 @@ require 'spec_helper'
 require 'its'
 
 describe PGA::Services do
-  subject(:client) { PGA::Services.new }
+  subject(:client) { PGA::Services.instance }
   let(:client) { PGA::Services.new }
 
   it 'Should be connectable' do
