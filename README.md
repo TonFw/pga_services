@@ -1,13 +1,13 @@
 # PgaServices
 
-TODO: Write a gem description
+GEM to Consume the PGAServices
 
 ## Installation
 
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'pga_services'
+    gem 'pga_services'
 ```
 
 And then execute:
