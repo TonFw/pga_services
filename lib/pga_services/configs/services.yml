@@ -1,0 +1,14 @@
+  # URL Based on decorator
+  protocol:                   http
+  domain:                     pga4.cna.org.br
+  path:                       meaweb/wsdl
+  
+  # Web service PGA
+  wsdl_url_cna_card:          CNACARD_LOCATIONS_QUERY.wsdl
+  wsdl_url_protocols_query:   PROTOCOLOS_ATIVO_QUERY.wsdl
+  wsdl_url_gta:               CNACARD_GTA_QUERY.wsdl
+  wsdl_url_earring_gtas:      PROTOCOLOS_GTA_BRINCOS.wsdl
+  wsdl_url_prop_sem_contato:  PROTOCOLOS_DIAS_SEM_CONTATO.wsdl
+  wsdl_url_slaughterhouse:    PROTOCOLOS_FRIGORIFICO.wsdl
+  wsdl_url_produtor_email:    PROTOCOLOS_PESSOA_QUERY.wsdl
+  wsdl_url_geoloc:            PROTOCOLOS_coordenada.wsdl
