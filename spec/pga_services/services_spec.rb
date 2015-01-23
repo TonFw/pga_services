@@ -2,50 +2,52 @@ require 'spec_helper'
 require 'its'
 
 describe PGA::Services do
-  subject(:cliente) { PGA::Services.new }
-  let(:cliente) { PGA::Services.new }
+  subject(:client) { PGA::Services.new }
+  let(:client) { PGA::Services.new }
 
-  it { should be_conectado }
+  it 'Should be connectable' do
+    should be_connected
+  end
 
   context "# Exploração filtrada pelo CPF do Produtor" do
-    cpf_produtor = '967.379.991-15'
-    cpf_invalido = '999.999.999-99'
+    farmer_cpf = '967.379.991-15'
+    invalid_cpf = '999.999.999-99'
 
-    its(:get_exploracoes, cpf_produtor) { should_not be_nil }
-    its(:get_exploracoes, cpf_invalido) { should be_nil }
+    its(:get_farms, farmer_cpf) { should_not be_nil }
+    its(:get_farms, invalid_cpf) { should be_nil }
   end
 
   context "# Explorações irmãs (mesma propriedade)" do
-    codprop = '13011000602'
-    codprop_invalida = '9911321'
+    cod_prop = '13011000602'
+    invalid_cod_prop = '9911321'
 
-    its(:exploracoes_irma, codprop) { should be_a Array }
-    its(:exploracoes_irma, codprop_invalida) { should be_nil }
+    its(:sister_farms, cod_prop) { should be_a Array }
+    its(:sister_farms, invalid_cod_prop) { should be_nil }
   end
 
   context "# Propriedade pelo código PGA da mesma" do
     cod_prop = '17000000001'
-    cod_prop_invalido = '99999999999'
+    invalid_cod_prop= '99999999999'
 
-    its(:get_propriedade, cod_prop) { should be_a Hash }
-    its(:get_propriedade, cod_prop_invalido) { should be_nil }
+    its(:get_property, cod_prop) { should be_a Hash }
+    its(:get_property, invalid_cod_prop) { should be_nil }
   end
 
   context "# Brincos do Produtor Corrente" do
     # COD EXPLORACAO ARAUJO: 0433000006069
-    cod_exploracao = '520000000010001'
-    cod_exploracao_invalido = '8653457'
+    farm_cod = '520000000010001'
+    invalid_farm_cod = '8653457'
 
     it 'Debugger' do
-      earrings = cliente.get_brincos_ativos cod_exploracao
+      earrings = client.get_active_earrings farm_cod
       expect(earrings).to be_a Array
     end
 
-    its(:get_brincos_ativos, cod_exploracao) { should_not be_nil }
-    its(:get_brincos_ativos, cod_exploracao_invalido) { should be_empty }
+    its(:get_active_earrings, farm_cod) { should_not be_nil }
+    its(:get_active_earrings, invalid_farm_cod) { should be_empty }
 
-    its(:get_brincos_estoque, cod_exploracao) { should_not be_nil }
-    its(:get_brincos_estoque, cod_exploracao_invalido) { should be_empty }
+    its(:get_inactive_earrings, farm_cod) { should_not be_nil }
+    its(:get_inactive_earrings, invalid_farm_cod) { should be_empty }
   end
 
   describe "# GTAs por CPF e CodExploração" do
@@ -57,14 +59,14 @@ describe PGA::Services do
       cpf_invalido = '999.999.990-99'
 
       it "GTA válida" do
-        gtas_envio_ok = cliente.get_gtas_produtor_produtor(cpf_produtor, cod_exploracao)
+        gtas_envio_ok = client.get_gtas_farmer_farmer(cpf_produtor, cod_exploracao)
 
         gtas_envio_ok.keys.should =~ [:gtas_recebidas, :gtas_enviadas]
         expect(gtas_envio_ok[:gtas_enviadas]).to be_a Array
       end
 
       it "GTA inválida" do
-        gtas_envio_erro = cliente.get_gtas_produtor_produtor(cpf_invalido, cod_exploracao_invalido)
+        gtas_envio_erro = client.get_gtas_farmer_farmer(cpf_invalido, cod_exploracao_invalido)
 
         gtas_envio_erro.keys.should =~ [:gtas_recebidas, :gtas_enviadas]
         gtas_envio_erro[:gtas_recebidas] =~ [:erro]
@@ -80,7 +82,7 @@ describe PGA::Services do
       cpf_invalido = '999.999.990-99'
 
       it "GTA válida" do
-        gtas_envio_ok = cliente.get_gtas_produtor_abatedoro(cpf_produtor, cod_exploracao)
+        gtas_envio_ok = client.get_gtas_farmer_slaughterhouse(cpf_produtor, cod_exploracao)
         if gtas_envio_ok.is_a?Array
           expect(gtas_envio_ok).to be_a Array
         else
@@ -89,7 +91,7 @@ describe PGA::Services do
       end
 
       it "GTA inválida" do
-        gtas_envio_erro = cliente.get_gtas_produtor_abatedoro(cpf_invalido, cod_exploracao_invalido)
+        gtas_envio_erro = client.get_gtas_farmer_slaughterhouse(cpf_invalido, cod_exploracao_invalido)
         gtas_envio_erro.should be_nil
       end
     end # /Recebimento
@@ -104,7 +106,7 @@ describe PGA::Services do
       it '40 should be ok for LAST_PROPERTY' do
         # SetUp vars
         range = 40
-        gtas = cliente.get_earring_transference_in_period(earring_valid, range)
+        gtas = client.get_earring_transference_in_period(earring_valid, range)
 
         # Expected conditions
         gtas.has_key?(:ponum).should_not be_nil if gtas.is_a? Hash
@@ -113,17 +115,23 @@ describe PGA::Services do
       it '40 should_not be ok for LAST_PROPERTY' do
         # SetUp vars
         range = 40
-        gtas = cliente.get_earring_transference_in_period(earring_invalid, range)
+        gtas = client.get_earring_transference_in_period(earring_invalid, range)
 
         # Expected conditions
         gtas.has_key?(:ponum).should_not be_nil if gtas.is_a? Hash
-        gtas.each {|gta| gta.has_key?(:ponum).should_not be_nil } if gtas.is_a? Array
+
+        if gtas.is_a? Array
+          gtas.each do |gta|
+            gta = gta.first if gta.is_a?Array
+            gta.has_key?(:ponum).should_not be_nil
+          end
+        end
       end
 
       it '90 should be ok for LAST_PROPERTY' do
         # SetUp vars
         range = 90
-        gtas = cliente.time_without_gta(codprop_valid)
+        gtas = client.time_without_gta(codprop_valid)
 
         # Check expected default values (property & zone are ID, so 0 is no record found)
         gtas.should be_a Hash
@@ -138,7 +146,7 @@ describe PGA::Services do
       it '90 should_not be ok for LAST_PROPERTY' do
         # SetUp vars
         range = 90
-        gtas = cliente.time_without_gta(codprop_invalid)
+        gtas = client.time_without_gta(codprop_invalid)
 
         # Check expected default values (property & zone are ID, so 0 is no record found)
         gtas.should be_a Hash
@@ -157,13 +165,13 @@ describe PGA::Services do
 
       it "Invalid count (more than permitted)" do
         period = 90
-        count_time = cliente.time_without_gta(codprop_invalid)
+        count_time = client.time_without_gta(codprop_invalid)
         count_time[:days_counter].to_i.should_not be > period
       end
 
       it "Valid count (more than permitted)" do
         period = 20 # Just to force the test pass (The PGA is drop constantly...)
-        count_time = cliente.time_without_gta(codprop_valid)
+        count_time = client.time_without_gta(codprop_valid)
         count_time[:days_counter].to_i.should be > period
       end
     end
@@ -171,7 +179,7 @@ describe PGA::Services do
 
   describe "GTAs by it identifier" do
     context 'Valid GTA' do
-      subject(:pga_client) { cliente }
+      subject(:pga_client) { client }
       subject(:gta) { pga_client.get_gta_by_identifier serie='J', number='000006', oesa='GO' }
 
       it 'should return it GTA' do
@@ -185,8 +193,8 @@ describe PGA::Services do
     end
 
     context 'Earrings' do
-      subject(:pga_client) { cliente }
-      subject(:transported_animals) { pga_client.get_transported_animals ponum_gta_id='GTA.000001805.2014' }
+      subject(:pga_client) { client }
+      subject(:transported_animals) { pga_client.get_transported_animals ponum_gta_id='GTA.000001989.2015' }
       subject(:wrong_transported_animals) { pga_client.get_transported_animals ponum_gta_id='GTA.9991447.2094' }
 
       it "mustn't be empty an empty array" do
@@ -204,15 +212,15 @@ describe PGA::Services do
   describe "Slaughterhouse" do
     context "Retrieve" do
       it "should return a valid one by it SIF" do
-        slaughterhouse = cliente.get_slaughterhouse_by '037'
+        slaughterhouse = client.get_slaughterhouse_by '037'
         slaughterhouse.should_not be_nil
       end
     end
   end
 
   context "# Geoposicionamento pelo ID da Propriedade" do
-    subject(:geoloc_ok) { cliente.get_geoposicionamento '17000000002' }
-    subject(:geoloc_not_ok) { cliente.get_geoposicionamento '1709999002' }
+    subject(:geoloc_ok) { client.get_geo_loc '17000000002' }
+    subject(:geoloc_not_ok) { client.get_geo_loc '1709999002' }
 
     it 'should have a latitude' do
       geoloc_ok[:latitude].should_not be_nil
@@ -233,12 +241,12 @@ describe PGA::Services do
 
   context "# Produtor" do
     it "should have a valid e-mail" do
-      person = cliente.get_full_person '792.916.002-53' #'965.804.611-87'
+      person = client.get_full_person '792.916.002-53' #'965.804.611-87'
       person[:email][:emailaddress].index('@').should_not be_nil
     end
 
     it "should not have a valid e-mail" do
-      person = cliente.get_full_person '313.343.932-49'
+      person = client.get_full_person '313.343.932-49'
       person[:email][:emailaddress].should be_nil
     end
   end
