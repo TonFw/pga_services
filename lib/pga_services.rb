@@ -1,5 +1,6 @@
 require 'base64'
 require 'savon'
+require 'singleton'
 require "pga_services/version"
 
 module PGA

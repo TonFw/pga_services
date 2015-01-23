@@ -3,7 +3,7 @@ require 'its'
 
 describe PGA::Services do
   subject(:client) { PGA::Services.instance }
-  let(:client) { PGA::Services.new }
+  let(:client) { PGA::Services.instance }
 
   it 'Should be connectable' do
     should be_connected
